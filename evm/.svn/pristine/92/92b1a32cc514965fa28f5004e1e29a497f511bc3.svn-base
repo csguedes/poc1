@@ -1,0 +1,70 @@
+package br.com.centralit.nagios.livestatus.actions;
+
+
+import org.apache.commons.lang3.StringUtils;
+import br.com.centralit.zabbix.util.JSONConverter;
+
+public class ParametersQueryNagios {
+	
+	//public String str_parm_ok = parm + StringUtils.repeat(" " + sep, how_many_parms_arrived);
+	//String[] arrayParm = str_parm_ok.split(sep);
+
+	public String socket_type = "";
+	public String path_or_host = "";
+	public String str_port = "";	
+	public String table = "";
+	public String columns = "";
+	public String filters = "";
+	public int port = 0; 
+
+	public Errors errors = null;
+	
+	// System.out.println(parm);
+	public ParametersQueryNagios(String parm){
+		String sep = ",";
+		int how_many_parms_expected = 7;
+		int how_many_parms_arrived = parm.split(sep).length;
+
+		if (how_many_parms_arrived < 1) {
+			errors = new Errors(2201, "Please, ");
+		}
+
+		how_many_parms_arrived = how_many_parms_expected - how_many_parms_arrived;
+		String str_parm_ok = parm + StringUtils.repeat(" " + sep, how_many_parms_arrived);
+		String[] arrayParm = str_parm_ok.split(sep);
+		
+		socket_type = arrayParm[0].trim();
+		path_or_host = arrayParm[1].trim();
+		str_port = arrayParm[2].trim();
+		
+		table = arrayParm[3].trim();
+		columns = arrayParm[4].trim();
+		filters = arrayParm[5].trim();
+		
+		port = Integer.parseInt(str_port);
+	}
+	
+	public String getPathNagios(){
+		if (isSocketTypeTcp())
+			return socket_type + "://" + path_or_host + ":" + str_port;
+		else 
+			return socket_type + "://" + path_or_host;
+	}
+	
+	public boolean hasErrors(){
+		return errors!=null;
+	}
+	
+	public String getJsonErrors(){
+		return JSONConverter.toJson(errors);
+	}
+	
+	public Connection getConnection(){
+		return new Connection(getPathNagios());
+	}
+
+	public boolean isSocketTypeTcp(){
+		return socket_type.startsWith("tcp");
+	}
+	
+}

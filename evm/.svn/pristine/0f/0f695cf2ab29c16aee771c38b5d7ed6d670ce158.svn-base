@@ -1,0 +1,55 @@
+package br.com.centralit.evm.citsmartevm.manager;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Model;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import br.com.centralit.evm.citsmartevm.ejb.ServiceBean;
+import br.com.centralit.evm.citsmartevm.model.SimpleProperty;
+import br.com.centralit.evm.citsmartevm.producer.Producer;
+
+
+/**
+ * 
+ * @author cristian.guedes
+ * O "Manager" é como se fosse o ajax forms
+ * a CDI Bean which acts as a glue between the JSF view and the EJBs
+ */
+@Model
+public class Manager {
+
+	@Inject
+	ServiceBean ejb;
+
+	@Produces
+	@Named
+	SimpleProperty property;
+
+	@Inject
+	Producer producer;
+
+	@PostConstruct
+	public void initNewProperty() {
+		property = new SimpleProperty();
+
+		
+		
+		
+		
+	}
+
+	public void save() {
+		ejb.put(property);
+		initNewProperty();
+	}
+
+	public void clear(SimpleProperty property) {
+		ejb.delete(property);
+
+	}
+	
+ 
+
+}

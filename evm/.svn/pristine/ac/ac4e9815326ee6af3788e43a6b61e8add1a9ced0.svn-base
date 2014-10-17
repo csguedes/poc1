@@ -1,0 +1,96 @@
+package br.com.centralit.evm.citsmartevm.model;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+@XmlTransient
+@MappedSuperclass
+public abstract class EventoBasico {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="id")
+    private Long id;
+	
+	private String tipo;
+    private String classificacao;
+    private String mensagem;
+    private String origem;
+    
+	public EventoBasico() {
+		
+	}
+
+    public EventoBasico(String mensagem) {
+    	this.mensagem=mensagem;
+    }
+   
+    
+    public String getType() {
+        return this.getClass().getSimpleName();
+    }
+
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	@XmlElement
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+	
+	
+	public String getClassificacao() {
+		return classificacao;
+	}
+
+	@XmlElement
+	public void setClassificacao(String classificacao) {
+		this.classificacao = classificacao;
+	}
+
+	public String getMensagem() {
+		return mensagem;
+	}
+
+	@XmlElement
+	public void setMensagem(String mensagem) {
+		this.mensagem = mensagem;
+	}
+
+	public String getOrigem() {
+		return origem;
+	}
+
+	@XmlElement
+	public void setOrigem(String origem) {
+		this.origem = origem;
+	}
+
+	@Override
+	public String toString() {
+		return "EventoBasico [tipo=" + tipo + ", classificacao="
+				+ classificacao + ", mensagem=" + mensagem + ", origem="
+				+ origem + "]";
+	}
+
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	
+    
+    
+    
+}

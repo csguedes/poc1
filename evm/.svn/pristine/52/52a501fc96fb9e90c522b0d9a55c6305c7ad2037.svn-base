@@ -1,0 +1,32 @@
+package br.com.centralit.nagios.livestatus.tables;
+import br.com.centralit.nagios.livestatus.actions.LS_TablesBase;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.sql.Timestamp;
+/**
+ * ##commentClass
+ *
+ * @created ##dateCreate
+ * @author Adenir Ribeiro Gomes - <a href="mailto:adenir.gomes@gmail.com">adenir.gomes@gmail.com</a>
+ */
+public class Columns extends LS_TablesBase {
+	private static final long serialVersionUID = -6911459280290420652L;
+	@JsonProperty
+	public String description = null;  //A description of the column
+	@JsonProperty
+	public String name = null;  //The name of the column within the table
+	@JsonProperty
+	public String table = null;  //The name of the table
+	@JsonProperty
+	public String type = null;  //The data type of the column (int, float, string, list)
+	public String toString(){
+		return 
+		"Description = " + description + "\n" +
+		"Name = " + name + "\n" +
+		"Table = " + table + "\n" +
+		"Type = " + type + "\n" +
+"";
+
+	}
+}

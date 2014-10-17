@@ -1,0 +1,67 @@
+package br.com.centralit.evm.citsmartevm.schedulers;
+
+import java.util.logging.Logger;
+
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDriven;
+import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
+
+import br.com.centralit.evm.citsmartevm.entity.EventoBasico;
+import br.com.centralit.evm.citsmartevm.util.TipoRetorno;
+import br.com.centralit.evm.correlacaoeventos.esper.EsperSingleton;
+import br.com.centralit.evm.correlacaoeventos.util.XMLJSONUtils;
+
+@MessageDriven(name = "executarTarefaConsumer", activationConfig = {
+		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+		@ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/demoQueue"),
+		@ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge") })
+public class ConsumidorDeMensagens implements MessageListener {
+
+	private Logger logger = Logger.getLogger(ExecutarTarefa.class.getName());
+
+	@Override
+	public void onMessage(Message msg) {
+//		System.out.println("Recebeu!");
+		EsperSingleton.getInstance();
+
+		if (msg instanceof TextMessage) {
+
+			TextMessage tMsg = (TextMessage) msg;
+			try {
+				processarComando(tMsg.getText(), TipoRetorno.XML);
+
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+
+//		logger.info("Recebeu XML!!");
+//		System.out.println("Recebeu XML!!");
+	}
+
+	private void processarComando(Object object, TipoRetorno tipoRetorno) {
+		EventoBasico eventoBasico = null;
+		if (object instanceof EventoBasico) {
+			eventoBasico = (EventoBasico) object;
+
+		} else if (object instanceof String) {
+
+			if (tipoRetorno.compareTo(TipoRetorno.XML) == 0) {
+				eventoBasico = XMLJSONUtils.XMLToPojo((String) object);
+
+			} else {
+				eventoBasico = XMLJSONUtils.jsonToPOJO((String) object);
+			}
+		}
+
+		if (eventoBasico != null) {
+			EsperSingleton.epService.getEPRuntime().sendEvent(eventoBasico);
+
+		}
+	}
+
+}

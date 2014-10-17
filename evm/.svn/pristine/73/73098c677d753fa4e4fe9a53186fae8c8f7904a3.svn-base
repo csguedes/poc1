@@ -1,0 +1,42 @@
+package br.com.centralit.evm.administracaoevm.ejb;
+
+import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import br.com.centralit.evm.administracaoevm.model.SimpleProperty;
+
+/**
+ * 
+ * @author cristian.guedes
+ * a Stateless EJB which will carry on transactional jobs (Inserts, Deletes)
+ *
+ */
+@Stateless
+public class ServiceBean {
+
+	@Inject
+	private Event<SimpleProperty> propEventSrc;
+
+	@Inject
+	private EntityManager em;
+
+	public void put(SimpleProperty p) {
+
+		em.persist(p);
+		propEventSrc.fire(p);
+	}
+
+	public void delete(SimpleProperty p) {
+
+		Query query = em
+				.createQuery("delete FROM com.csg.model.SimpleProperty p where p.key='"
+						+ p.getKey() + "'");
+
+		query.executeUpdate();
+		propEventSrc.fire(p);
+
+	}
+}

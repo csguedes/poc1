@@ -1,0 +1,26 @@
+package br.com.centralit.nagios.livestatus.tables;
+import br.com.centralit.nagios.livestatus.actions.LS_TablesBase;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.sql.Timestamp;
+/**
+ * ##commentClass
+ *
+ * @created ##dateCreate
+ * @author Adenir Ribeiro Gomes - <a href="mailto:adenir.gomes@gmail.com">adenir.gomes@gmail.com</a>
+ */
+public class Commands extends LS_TablesBase {
+	private static final long serialVersionUID = -6911459280290420652L;
+	@JsonProperty
+	public String line = null;  //The shell command line
+	@JsonProperty
+	public String name = null;  //The name of the command
+	public String toString(){
+		return 
+		"Line = " + line + "\n" +
+		"Name = " + name + "\n" +
+"";
+
+	}
+}

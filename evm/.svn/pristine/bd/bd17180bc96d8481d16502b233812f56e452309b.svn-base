@@ -1,0 +1,100 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package br.com.centralit.nagios.queue;
+
+/**
+ *
+ * @author adenir
+ */
+import java.util.logging.Logger;
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDriven;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
+import br.com.centralit.nagios.livestatus.actions.*;
+import br.com.centralit.nagios.livestatus.response.*;
+import br.com.centralit.zabbix.util.*;
+import br.com.centralit.nagios.livestatus.tables.*;
+import java.util.logging.Level;
+import javax.inject.Inject;
+
+@MessageDriven(name = "queueConnectionConsumer", activationConfig = {
+    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+    @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/demoQueue"),
+    @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge")})
+
+public class QueueConnectionConsumer implements MessageListener {
+
+    @Inject
+    QueueConnectionProducer producer;
+    private final static Logger LOGGER = Logger.getLogger(QueueConnectionConsumer.class.toString());
+
+    public void onMessage(Message rcvMessage) {
+        TextMessage msg = null;
+        try {
+            if (rcvMessage instanceof TextMessage) {
+                msg = (TextMessage) rcvMessage;
+                String jsonHost = msg.getText();
+                System.out.println("Citconnger: Message in: demoQueue " + jsonHost);
+
+                producer.setMessage(getNagiosHost(jsonHost));
+                producer.send();
+
+            } else {
+                System.out.println("Message of wrong type: " + rcvMessage.getClass().getName());
+            }
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            Logger.getLogger(QueueConnectionConsumer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public String getNagiosHost(String parm) throws Exception {
+
+        ParametersQueryNagios parm_query_nagios = new ParametersQueryNagios(parm);
+        if (parm_query_nagios.hasErrors()) {
+            return parm_query_nagios.getJsonErrors();
+        }
+
+        System.out.println(parm);
+
+        Connection conn = new Connection(parm_query_nagios);
+
+        LS_Response response = conn.execute_query(parm_query_nagios.table, parm_query_nagios.columns, parm_query_nagios.filters);
+
+        String jjson = response.getColumnsAndValueAsJson(JSONConverter.getObjects(parm_query_nagios.table));
+
+        Hosts host = JSONConverter.fromJson(jjson, Hosts.class);
+
+        for (EventWithInfo evt : host.events) {
+            parm_query_nagios.table = "services";
+            parm_query_nagios.filters = "display_name = " + evt.display_name;
+
+            System.out.println(parm_query_nagios.socket_type + " "
+                    + parm_query_nagios.path_or_host + " "
+                    + parm_query_nagios.str_port + " "
+                    + parm_query_nagios.table + " "
+                    + parm_query_nagios.columns + " "
+                    + parm_query_nagios.filters + " ");
+
+            conn = new Connection(parm_query_nagios);
+            response = conn.execute_query(parm_query_nagios.table, parm_query_nagios.columns, parm_query_nagios.filters);
+            jjson = response.getColumnsAndValueAsJson(JSONConverter.getObjects(parm_query_nagios.table));
+
+            Service service = JSONConverter.fromJson(jjson, Service.class);
+
+            host.listOfservices.add(service);
+
+        }
+
+		//jjson =  response.getColumnsAndValueAsJson(JSONConverter.getObjects(parm_query_nagios.table));
+        return JSONConverter.toJson(host);
+    }
+
+}

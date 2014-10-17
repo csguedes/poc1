@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="CitsmartEVM">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/resources"/>
+        <dependent-module archiveName="GerentePadronizacao-1.0-GerentePadronizacao.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/GerentePadronizacao/GerentePadronizacao">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ModuloZabbix-1.0-ModuloZabbix.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ModuloZabbix/ModuloZabbix">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ModuloNagios-1.0-ModuloNagios.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ModuloNagios/ModuloNagios">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ModuloLegado-1.0-ModuloLegado.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ModuloLegado/ModuloLegado">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="GerenteTarefas-1.0-GerenteTarefas.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/GerenteTarefas/GerenteTarefas">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="GerenteConexoes-1.0-GerenteConexoes.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/GerenteConexoes/GerenteConexoes">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="CitsmartEVM"/>
+        <property name="java-output-path" value="/CitsmartEVM/target/classes"/>
+    </wb-module>
+</project-modules>
