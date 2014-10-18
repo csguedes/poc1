@@ -10,35 +10,26 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.AccessTimeout;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Schedule;
-import javax.ejb.ScheduleExpression;
 import javax.ejb.Singleton;
-import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
-import javax.ejb.TimerService;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
 
 import br.com.centralit.evm.citsmartevm.dao.ITarefasDAO;
-import br.com.centralit.evm.citsmartevm.entity.SimpleProperty;
 import br.com.centralit.evm.citsmartevm.entity.Tarefas;
 import br.com.centralit.evm.citsmartevm.util.CronExpression;
 import br.com.centralit.evm.citsmartevm.util.MapaMemoria;
 
 
 @Singleton
-//@Stateless
 public class ExecutarTarefa {
 	private Logger logger = Logger.getLogger(ExecutarTarefa.class.getName());
-	
-//	@Resource
-//	TimerService timerService;	
 	
 	@Inject
 	ProdutorDeMensagens executarDeMensagens;
@@ -62,20 +53,6 @@ public class ExecutarTarefa {
 		MapaMemoria.getInstance();
 		sincronizarTarefasMemoriaBanco();
 
-//		CronExpression teste = new CronExpression("*/118 */2 * * * *");
-//		
-//		DateTime proximaHora = teste.nextTimeAfter(new DateTime());
-//		
-//		System.out.println(proximaHora);
-//		while (new DateTime().isBefore(proximaHora)) {
-//			System.out.println(proximaHora + " - " + new DateTime());
-//		}
-//		
-//		System.out.println(new DateTime());
-		
-		
-		
-		
 	}
 	
 	@Schedule(second = "*/30", hour = "*", minute="*", persistent = false)
@@ -90,6 +67,11 @@ public class ExecutarTarefa {
 			// Verifica se esta na hora de executar a tarefa
 			if (new DateTime().isAfter(tarefas.getProximaHora())) {
 				logger.info("Hora de executar a tarefa " + " - " + tarefas.getDescricao());
+				
+				// Atualiza a proxima hora de execucao
+				CronExpression expressaoCron = new CronExpression(tarefas.getCron());
+				tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
+				
 			}
 			
 			logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
@@ -108,7 +90,6 @@ public class ExecutarTarefa {
 			CronExpression expressaoCron = new CronExpression(tarefas.getCron());
 			tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
 			
-//			logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
 			logger.info("Atualizou o mapa de memória com os dados do banco!!");
 			
 		}
@@ -189,15 +170,6 @@ public class ExecutarTarefa {
 
 	}	
 	
-	
-//	private void teste() {
-//		ScheduleExpression expression = new ScheduleExpression();
-//        expression.second("*/1").minute("*").hour("*");
-////        timerService.createCalendarTimer
-//		
-//		
-//	}
-			
 	
 	
 }
