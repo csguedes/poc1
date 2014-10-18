@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SOFTWARES")
-@Entity
+@Entity(name="softwares")
 public class SOFTWARES {
 	
 	@Id

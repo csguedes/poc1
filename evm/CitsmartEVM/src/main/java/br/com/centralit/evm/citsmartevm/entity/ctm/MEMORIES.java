@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "MEMORIES")
-@Entity
+@Entity(name="memories")
 public class MEMORIES {
 	private String BANKLABEL;
 

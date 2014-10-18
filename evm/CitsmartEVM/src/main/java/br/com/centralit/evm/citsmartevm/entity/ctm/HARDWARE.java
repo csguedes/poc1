@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "HARDWARE")
-@Entity
-@Table(uniqueConstraints=
-@UniqueConstraint(columnNames = {"NAME", "IPADDR"}))
+@Entity(name="hardware")
+//@Table(uniqueConstraints=
+//@UniqueConstraint(columnNames = {"NAME", "IPADDR"}))
 public class HARDWARE {
 	
 	@Id

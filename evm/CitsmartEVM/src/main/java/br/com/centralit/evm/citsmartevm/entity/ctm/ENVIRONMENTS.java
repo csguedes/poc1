@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ENVIRONMENTS")
-@Entity
+@Entity(name="environments")
 public class ENVIRONMENTS {
 	private String NAME;
 

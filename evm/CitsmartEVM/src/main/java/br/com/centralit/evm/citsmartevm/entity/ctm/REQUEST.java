@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "REQUEST")
-@Entity
+@Entity(name="request")
 public class REQUEST {
 
 	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)

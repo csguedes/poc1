@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "NETWORKS")
-@Entity
+@Entity(name="networks")
 public class NETWORKS {
 	private String DHCPENABLED;
 

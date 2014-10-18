@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "BIOS")
-@Entity
+@Entity(name="bios")
 public class BIOS {
 	private String SMODEL;
 

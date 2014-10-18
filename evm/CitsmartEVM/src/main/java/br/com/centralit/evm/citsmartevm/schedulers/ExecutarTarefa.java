@@ -46,6 +46,7 @@ public class ExecutarTarefa {
 	
 	
 	@Schedule(second = "*/5", hour = "*", minute="*", persistent = false)
+	@Lock(LockType.READ)
 	public void processarTarefasAgendadas() {
 		
 		for (Iterator tarefa = MapaMemoria.getInstance().tarefasAgendadas.iterator(); tarefa.hasNext();) {
@@ -55,20 +56,18 @@ public class ExecutarTarefa {
 			
 		}
 		
+		System.out.println("Nenhuma tarefa agendada");
+		
 	}
 	
-	@Schedule(second = "*", hour = "*", minute="/2", persistent = false)
+	@Schedule(second = "*", hour = "*", minute="*/2", persistent = false)
+	@Lock(LockType.READ)
 	public void agendadorSecundario() {
 		MapaMemoria.getInstance().atualizarTarefasAgendadas(tarefasAgendadas.listAll());
+		taskEnviarXMLsCTM();
 	}
 	
 	
-	@Schedule(second = "*", hour = "*", minute="/2", persistent = false)
-	@Lock(LockType.READ)
-	/**
-	 * Executar o método abaixo a cada segundo.
-	 * @return
-	 */
 	public String taskEnviarXMLsCTM() {
 
 		String resultado = "";
@@ -76,7 +75,7 @@ public class ExecutarTarefa {
 
 			// Início
 
-			String target_dir = "C:\\Users\\cristian.guedes\\Desktop\\inventários";
+			String target_dir = "C:\\cristian\\inventários";
 			File dir = new File(target_dir);
 			File[] files = dir.listFiles();
 

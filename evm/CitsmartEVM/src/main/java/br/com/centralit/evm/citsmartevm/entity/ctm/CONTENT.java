@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "CONTENT")
-@Entity
+@Entity(name="content")
 public class CONTENT {
 	
 	@Id

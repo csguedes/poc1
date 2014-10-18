@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "STORAGES")
-@Entity
+@Entity(name="storages")
 public class STORAGES {
 	private Long FREE;
 

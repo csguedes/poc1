@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "INPUTS")
-@Entity
+@Entity(name="inputs")
 public class INPUTS {
 	private String DEVICEID;
 
