@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import org.joda.time.DateTime;
 
 @Entity
 public class Tarefas  {
@@ -19,6 +22,10 @@ public class Tarefas  {
 	private String descricao;
 	
 	private String cron;
+	
+	@Transient
+	private DateTime proximaHora;
+	
 
 	public Long getId() {
 		return id;
@@ -42,6 +49,14 @@ public class Tarefas  {
 
 	public void setCron(String cron) {
 		this.cron = cron;
+	}
+
+	public DateTime getProximaHora() {
+		return proximaHora;
+	}
+
+	public void setProximaHora(DateTime proximaHora) {
+		this.proximaHora = proximaHora;
 	}
 	
 	
