@@ -72,9 +72,11 @@ public class ExecutarTarefa {
 				CronExpression expressaoCron = new CronExpression(tarefas.getCron());
 				tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
 				
+			} else {
+				logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
+				
 			}
 			
-			logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
 			
 		}
 		
@@ -89,15 +91,14 @@ public class ExecutarTarefa {
 			
 			CronExpression expressaoCron = new CronExpression(tarefas.getCron());
 			tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
-			
-			logger.info("Atualizou o mapa de memória com os dados do banco!!");
-			
 		}
+
+		logger.info("Atualizou o mapa de memória com os dados do banco!!");
 		
 	}
 	
 	
-	@Schedule(second = "*/295", hour = "*", minute="*/5", persistent = false)
+	@Schedule(hour = "*", minute="*/5", persistent = false)
 	@Lock(LockType.READ)
 	public void agendadorSecundario() {
 		sincronizarTarefasMemoriaBanco();
