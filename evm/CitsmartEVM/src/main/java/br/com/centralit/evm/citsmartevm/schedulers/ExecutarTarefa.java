@@ -60,6 +60,7 @@ public class ExecutarTarefa {
 	@PostConstruct
 	public void inicializarBean() {
 		MapaMemoria.getInstance();
+		sincronizarTarefasMemoriaBanco();
 
 //		CronExpression teste = new CronExpression("*/118 */2 * * * *");
 //		
@@ -87,21 +88,19 @@ public class ExecutarTarefa {
 			
 			
 			// Verifica se esta na hora de executar a tarefa
-			if (new DateTime().isEqual(tarefas.getProximaHora())) {
-				logger.info("Hora de executar a tarefa " + tarefas.getDescricao());
+			if (new DateTime().isAfter(tarefas.getProximaHora())) {
+				logger.info("Hora de executar a tarefa " + " - " + tarefas.getDescricao());
 			}
 			
-			logger.info(tarefas.getDescricao());
+			logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
 			
 		}
 		
 		
 	}
 	
-	@Schedule(second = "*/118", hour = "*", minute="*/2", persistent = false)
-	@Lock(LockType.READ)
-	public void agendadorSecundario() {
-		MapaMemoria.getInstance().atualizarTarefasAgendadas(tarefasAgendadas.listAll());
+	private void sincronizarTarefasMemoriaBanco() {
+		MapaMemoria.atualizarTarefasAgendadas(tarefasAgendadas.listAll());
 		
 		for (Iterator tarefa = MapaMemoria.tarefasAgendadas.iterator(); tarefa.hasNext();) {
 			Tarefas tarefas = (Tarefas) tarefa.next();
@@ -109,12 +108,18 @@ public class ExecutarTarefa {
 			CronExpression expressaoCron = new CronExpression(tarefas.getCron());
 			tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
 			
-			logger.info(tarefas.getDescricao());
+//			logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
+			logger.info("Atualizou o mapa de memória com os dados do banco!!");
 			
 		}
 		
-		
-		logger.info("Atualizou o mapa de memória com os dados do banco!! #revogait");
+	}
+	
+	
+	@Schedule(second = "*/295", hour = "*", minute="*/5", persistent = false)
+	@Lock(LockType.READ)
+	public void agendadorSecundario() {
+		sincronizarTarefasMemoriaBanco();
 //		taskEnviarXMLsCTM();
 	}
 	
