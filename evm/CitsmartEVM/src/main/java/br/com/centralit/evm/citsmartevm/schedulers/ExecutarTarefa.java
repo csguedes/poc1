@@ -6,30 +6,36 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.AccessTimeout;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
 import br.com.centralit.evm.citsmartevm.dao.ITarefasDAO;
+import br.com.centralit.evm.citsmartevm.entity.SimpleProperty;
 import br.com.centralit.evm.citsmartevm.entity.Tarefas;
 import br.com.centralit.evm.citsmartevm.util.MapaMemoria;
 
 
 @Singleton
+//@Stateless
 public class ExecutarTarefa {
 	private Logger logger = Logger.getLogger(ExecutarTarefa.class.getName());
 	
-	@Resource
-	TimerService timerService;	
+//	@Resource
+//	TimerService timerService;	
 	
 	@Inject
 	ProdutorDeMensagens executarDeMensagens;
@@ -45,26 +51,40 @@ public class ExecutarTarefa {
 	}
 	
 	
-	@Schedule(second = "*/5", hour = "*", minute="*", persistent = false)
-	@Lock(LockType.READ)
-	public void processarTarefasAgendadas() {
+	/**
+	 * Coloque aqui neste método tudo o que deve acontecer depois que acontecer a injeção de dependência
+	 */
+	@PostConstruct
+	public void inicializarBean() {
+		MapaMemoria.getInstance();
+
 		
-		for (Iterator tarefa = MapaMemoria.getInstance().tarefasAgendadas.iterator(); tarefa.hasNext();) {
-			Tarefas tarefas = (Tarefas) tarefa.next();
-			
-			
-			
-		}
 		
-		System.out.println("Nenhuma tarefa agendada");
+		
 		
 	}
 	
-	@Schedule(second = "*", hour = "*", minute="*/2", persistent = false)
+	@Schedule(second = "*/30", hour = "*", minute="*", persistent = false)
+	@Lock(LockType.READ)
+	public void processarTarefasAgendadas() {
+		
+		
+		for (Iterator tarefa = MapaMemoria.tarefasAgendadas.iterator(); tarefa.hasNext();) {
+			Tarefas tarefas = (Tarefas) tarefa.next();
+			
+			logger.info(tarefas.getDescricao());
+			
+		}
+		
+		
+	}
+	
+	@Schedule(second = "*/118", hour = "*", minute="*/2", persistent = false)
 	@Lock(LockType.READ)
 	public void agendadorSecundario() {
 		MapaMemoria.getInstance().atualizarTarefasAgendadas(tarefasAgendadas.listAll());
-		taskEnviarXMLsCTM();
+		logger.info("Atualizou o mapa de memória com os dados do banco!! #revogait");
+//		taskEnviarXMLsCTM();
 	}
 	
 	
@@ -123,6 +143,7 @@ public class ExecutarTarefa {
 	}
 	
 	@Timeout
+	@AccessTimeout(value = 20, unit = TimeUnit.MINUTES)
 	private void generateReport(Timer timer) {
 
 //	    logger.info("!!--timeout invoked here "+new Date());
@@ -133,13 +154,13 @@ public class ExecutarTarefa {
 	}	
 	
 	
-	private void teste() {
-		ScheduleExpression expression = new ScheduleExpression();
-        expression.second("*/1").minute("*").hour("*");
-//        timerService.createCalendarTimer
-		
-		
-	}
+//	private void teste() {
+//		ScheduleExpression expression = new ScheduleExpression();
+//        expression.second("*/1").minute("*").hour("*");
+////        timerService.createCalendarTimer
+//		
+//		
+//	}
 			
 	
 	
