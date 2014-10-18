@@ -23,9 +23,12 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
+import org.joda.time.DateTime;
+
 import br.com.centralit.evm.citsmartevm.dao.ITarefasDAO;
 import br.com.centralit.evm.citsmartevm.entity.SimpleProperty;
 import br.com.centralit.evm.citsmartevm.entity.Tarefas;
+import br.com.centralit.evm.citsmartevm.util.CronExpression;
 import br.com.centralit.evm.citsmartevm.util.MapaMemoria;
 
 
@@ -58,6 +61,16 @@ public class ExecutarTarefa {
 	public void inicializarBean() {
 		MapaMemoria.getInstance();
 
+		CronExpression teste = new CronExpression("*/118 */2 * * * *");
+		
+		DateTime proximaHora = teste.nextTimeAfter(new DateTime());
+		
+		System.out.println(proximaHora);
+		while (new DateTime().isBefore(proximaHora)) {
+			System.out.println(proximaHora + " - " + new DateTime());
+		}
+		
+		System.out.println(new DateTime());
 		
 		
 		
