@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.annotation.Resource;
@@ -18,6 +19,10 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
+import br.com.centralit.evm.citsmartevm.dao.ITarefasDAO;
+import br.com.centralit.evm.citsmartevm.entity.Tarefas;
+import br.com.centralit.evm.citsmartevm.util.MapaMemoria;
+
 
 @Singleton
 public class ExecutarTarefa {
@@ -29,6 +34,9 @@ public class ExecutarTarefa {
 	@Inject
 	ProdutorDeMensagens executarDeMensagens;
 	
+	@Inject
+	ITarefasDAO tarefasAgendadas;
+	
 
 	public void enviarXMLCTM(String XML) {
 
@@ -37,7 +45,25 @@ public class ExecutarTarefa {
 	}
 	
 	
-	@Schedule(second = "*/1", hour = "*", minute="*", persistent = false)
+	@Schedule(second = "*/5", hour = "*", minute="*", persistent = false)
+	public void processarTarefasAgendadas() {
+		
+		for (Iterator tarefa = MapaMemoria.getInstance().tarefasAgendadas.iterator(); tarefa.hasNext();) {
+			Tarefas tarefas = (Tarefas) tarefa.next();
+			
+			
+			
+		}
+		
+	}
+	
+	@Schedule(second = "*", hour = "*", minute="/2", persistent = false)
+	public void agendadorSecundario() {
+		MapaMemoria.getInstance().atualizarTarefasAgendadas(tarefasAgendadas.listAll());
+	}
+	
+	
+	@Schedule(second = "*", hour = "*", minute="/2", persistent = false)
 	@Lock(LockType.READ)
 	/**
 	 * Executar o método abaixo a cada segundo.

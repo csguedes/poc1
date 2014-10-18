@@ -41,8 +41,13 @@ public class TarefasDAO implements ITarefasDAO {
 		Query query = em
 				.createQuery("from br.com.centralit.evm.citsmartevm.entity.Tarefas ");
 
+		if (query.getResultList().size()>0) {
+			return new ArrayList<Tarefas>(query.getResultList());
+			
+		} else {
+			return new ArrayList<Tarefas>();
+		}
 		
-		return new ArrayList<Tarefas>(query.getResultList());
 		
 		
 		
