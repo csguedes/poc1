@@ -26,6 +26,9 @@ public class Tarefas  {
 	@Transient
 	private DateTime proximaHora;
 	
+	@Transient
+	private boolean fired;
+	
 
 	public Long getId() {
 		return id;
@@ -57,6 +60,14 @@ public class Tarefas  {
 
 	public void setProximaHora(DateTime proximaHora) {
 		this.proximaHora = proximaHora;
+	}
+
+	public boolean isFired() {
+		return fired;
+	}
+
+	public void setFired(boolean fired) {
+		this.fired = fired;
 	}
 	
 	

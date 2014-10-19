@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -15,33 +14,33 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 
 import br.com.centralit.evm.citsmartevm.dao.ITarefasDAO;
-import br.com.centralit.evm.citsmartevm.entity.Tarefas;
 import br.com.centralit.evm.citsmartevm.util.CronExpression;
 import br.com.centralit.evm.citsmartevm.util.MapaMemoria;
 
-
 @Singleton
+@Startup
 public class ExecutarTarefa {
 	private Logger logger = Logger.getLogger(ExecutarTarefa.class.getName());
 	
 	@Inject
-	ProdutorDeMensagens executarDeMensagens;
+	ProdutorDeMensagens produtorDeMensagens;
 	
 	@Inject
 	ITarefasDAO tarefasAgendadas;
 	
-
 	public void enviarXMLCTM(String XML) {
 
-		executarDeMensagens.setMessage(XML);
-		executarDeMensagens.send();
+		produtorDeMensagens.setMessage(XML);
+		produtorDeMensagens.send();
 	}
 	
 	
@@ -55,30 +54,51 @@ public class ExecutarTarefa {
 
 	}
 	
-	@Schedule(second = "*/30", hour = "*", minute="*", persistent = false)
+	@Schedule(second = "*/1", hour = "*", minute="*", persistent = false)
 	@Lock(LockType.READ)
 	public void processarTarefasAgendadas() {
 		
-		
-		for (Iterator tarefa = MapaMemoria.tarefasAgendadas.iterator(); tarefa.hasNext();) {
-			Tarefas tarefas = (Tarefas) tarefa.next();
+		DateTime novaData = new DateTime(); 
+		for (int i = 0; i < MapaMemoria.tarefasAgendadas.size(); i++) {
 			
 			
 			// Verifica se esta na hora de executar a tarefa
-			if (new DateTime().isAfter(tarefas.getProximaHora())) {
-				logger.info("Hora de executar a tarefa " + " - " + tarefas.getDescricao());
+			if (
+					
+					novaData.get(DateTimeFieldType.yearOfCentury())==MapaMemoria.tarefasAgendadas.get(i).getProximaHora().get(DateTimeFieldType.yearOfCentury())
+					&&
+					novaData.get(DateTimeFieldType.dayOfMonth())==MapaMemoria.tarefasAgendadas.get(i).getProximaHora().get(DateTimeFieldType.dayOfMonth())
+					&&
+					novaData.get(DateTimeFieldType.hourOfDay())==MapaMemoria.tarefasAgendadas.get(i).getProximaHora().get(DateTimeFieldType.hourOfDay())
+					&&
+					novaData.get(DateTimeFieldType.minuteOfHour())==MapaMemoria.tarefasAgendadas.get(i).getProximaHora().get(DateTimeFieldType.minuteOfHour())
+					&&
+					novaData.get(DateTimeFieldType.secondOfMinute())==MapaMemoria.tarefasAgendadas.get(i).getProximaHora().get(DateTimeFieldType.secondOfMinute())
+					
+					)
+					
+					
+					 {
 				
-				// Atualiza a proxima hora de execucao
-				CronExpression expressaoCron = new CronExpression(tarefas.getCron());
-				tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
-				
+
+				// Marca a tarefa como executada
+				MapaMemoria.tarefasAgendadas.get(i).setFired(true);
+					
 			} else {
-				logger.info(tarefas.getDescricao() + " - " + tarefas.getProximaHora());
+				logger.info( MapaMemoria.tarefasAgendadas.get(i).getDescricao() + " - Proxima execucao: " +  MapaMemoria.tarefasAgendadas.get(i).getProximaHora()
+						
+						+ " - Executou? " +  (MapaMemoria.tarefasAgendadas.get(i).isFired() ? "Sim" : "Nao"));
+
 				
 			}
 			
 			
+			
 		}
+	
+		
+		logger.info(new DateTime() + "*************************************************************************************************************************");
+	
 		
 		
 	}
@@ -86,26 +106,49 @@ public class ExecutarTarefa {
 	private void sincronizarTarefasMemoriaBanco() {
 		MapaMemoria.atualizarTarefasAgendadas(tarefasAgendadas.listAll());
 		
-		for (Iterator tarefa = MapaMemoria.tarefasAgendadas.iterator(); tarefa.hasNext();) {
-			Tarefas tarefas = (Tarefas) tarefa.next();
+		
+		for (int i = 0; i < MapaMemoria.tarefasAgendadas.size(); i++) {
+			// Atualiza a proxima hora de execucao
+			CronExpression expressaoCron = new CronExpression( MapaMemoria.tarefasAgendadas.get(i).getCron());
+			MapaMemoria.tarefasAgendadas.get(i).setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
 			
-			CronExpression expressaoCron = new CronExpression(tarefas.getCron());
-			tarefas.setProximaHora(expressaoCron.nextTimeAfter(new DateTime()));
+			logger.info( MapaMemoria.tarefasAgendadas.get(i).getDescricao() + " - Proxima execucao: " +  MapaMemoria.tarefasAgendadas.get(i).getProximaHora());
 		}
-
+		
+		
 		logger.info("Atualizou o mapa de memória com os dados do banco!!");
 		
 	}
 	
 	
-	@Schedule(hour = "*", minute="*/5", persistent = false)
+	/**
+	 * A cada minuto, reagenda as tarefas que ja foram executadas
+	 * 
+	 */
+	@Schedule(hour = "*", minute="*/1", persistent = false)
 	@Lock(LockType.READ)
-	public void agendadorSecundario() {
-		sincronizarTarefasMemoriaBanco();
-//		taskEnviarXMLsCTM();
+	public void reagendarTarefas() {
+		// Atualiza a proxima hora de execucao
+		for (int i = 0; i < MapaMemoria.tarefasAgendadas.size(); i++) {
+			if (MapaMemoria.tarefasAgendadas.get(i).isFired()) {
+				CronExpression expressaoCron = new CronExpression( MapaMemoria.tarefasAgendadas.get(i).getCron());
+				MapaMemoria.tarefasAgendadas.get(i).setProximaHora(expressaoCron.nextTimeAfter( new DateTime()));
+				MapaMemoria.tarefasAgendadas.get(i).setFired(false);
+				
+			}
+		}
 	}
 	
 	
+	@Schedule(hour = "*", minute="*/30", persistent = false)
+	@Lock(LockType.READ)
+	public void agendadorSecundario() {
+		sincronizarTarefasMemoriaBanco();
+	}
+	
+	
+//	@Schedule(hour = "*", minute="*/1", persistent = false)
+//	@Lock(LockType.READ)
 	public String taskEnviarXMLsCTM() {
 
 		String resultado = "";
@@ -164,13 +207,26 @@ public class ExecutarTarefa {
 	@AccessTimeout(value = 20, unit = TimeUnit.MINUTES)
 	private void generateReport(Timer timer) {
 
-//	    logger.info("!!--timeout invoked here "+new Date());
-//	    System.out.println("!!--timeout invoked here "+new Date());
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("*****************t i m e o u t ! ! !********************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
+	    logger.info("********************************************************");
 
 	 
 
 	}	
 	
+
 	
 	
 }

@@ -111,12 +111,23 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.jboss.spec.javax.ejb</groupId>
 			<artifactId>jboss-ejb-api_3.1_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
+ -->
+<dependency>
+	<groupId>org.ow2.spec.ee</groupId>
+	<artifactId>ow2-ejb-3.1-spec</artifactId>
+	<version>1.0.13</version>
+</dependency>
 
+
+
+
+ 
+ 
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>

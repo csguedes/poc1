@@ -6,11 +6,9 @@ import java.util.List;
 import br.com.centralit.evm.citsmartevm.entity.Tarefas;
 
 
-
 public class MapaMemoria {
 	private static MapaMemoria instance = null;
 	public static String resultado = null;
-	public static boolean iniciado = false;
 	public static List<Tarefas> tarefasAgendadas;
 	
 	protected MapaMemoria() {
@@ -20,7 +18,6 @@ public class MapaMemoria {
 	public static MapaMemoria getInstance() {
 		if (instance == null) {
 			instance = new MapaMemoria();
-			iniciado=true;
 			tarefasAgendadas = new ArrayList<Tarefas>();
 			
 
